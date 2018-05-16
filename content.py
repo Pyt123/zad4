@@ -48,7 +48,7 @@ def train():
     # Create model
     #model = NeuralNet()()
     # Load model
-    model = torch.load('mytraining.pth')
+    model = torch.load('mytraining.pth', map_location='cpu')
 
     # Some stuff
     optimizer = optim.SGD(model.parameters(), lr=0.006, momentum=MOMENTUM)
