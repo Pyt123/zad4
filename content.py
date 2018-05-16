@@ -31,21 +31,24 @@ class NeuralNet(nn.Module):
         #return (self.fc4(x))
 
 
-COUNT = 27500
-EPOCHS = 500000
-START_MOMENTUM = 0.5
-DIVIDER = 2
-EPOCHS_TO_CHANGE = 2000
 
 def train():
+    COUNT = 27500
+    EPOCHS = 500000
+    START_MOMENTUM = 0.5
+    MOMENTUM = START_MOMENTUM
+    DIVIDER = 2
+    EPOCHS_TO_CHANGE = 2000
+    NEXT_TO_CHANGE = EPOCHS_TO_CHANGE
+
     # Load data
     (x_train, y_train) = pkl.load(open('train.pkl', mode='rb'))
     (x_train, y_train) = (x_train[:COUNT], y_train[:COUNT])
 
     # Create model
-    #model = NeuralNet().cuda()
+    model = NeuralNet().cuda()
     # Load model
-    model = torch.load('mytraining.pth')
+    #model = torch.load('mytraining.pth')
 
     # Some stuff
     optimizer = optim.SGD(model.parameters(), lr=0.008, momentum=0.1)
@@ -58,6 +61,10 @@ def train():
     targets = torch.autograd.Variable(torch.from_numpy(y_train).type(torch.cuda.LongTensor), requires_grad=False)
 
     for epoch in range(EPOCHS):
+        if epoch == NEXT_TO_CHANGE:
+            MOMENTUM /= DIVIDER
+            NEXT_TO_CHANGE += NEXT_TO_CHANGE + EPOCHS_TO_CHANGE
+
         # Forward pass
         outputs = model(inputs)
         loss = criterion(outputs, targets.squeeze(1))
@@ -67,7 +74,7 @@ def train():
         loss.backward()
         optimizer.step()
 
-        if (epoch + 1) % 5 == 0:
+        if (epoch + 1) % 50 == 0:
             print('Epoch [{}/{}], Loss: {:.24f}'.format(epoch + 1, EPOCHS, loss.data[0]))
 
     torch.save(model, 'mytraining.pth')
