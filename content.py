@@ -34,11 +34,11 @@ class NeuralNet(nn.Module):
 
 def train():
     COUNT = 27500
-    EPOCHS = 500000
-    START_MOMENTUM = 0.5
+    EPOCHS = 3000
+    START_MOMENTUM = 0.03
     MOMENTUM = START_MOMENTUM
-    DIVIDER = 2
-    EPOCHS_TO_CHANGE = 2000
+    DIVIDER = 1.5
+    EPOCHS_TO_CHANGE = 500
     NEXT_TO_CHANGE = EPOCHS_TO_CHANGE
 
     # Load data
@@ -46,24 +46,25 @@ def train():
     (x_train, y_train) = (x_train[:COUNT], y_train[:COUNT])
 
     # Create model
-    model = NeuralNet().cuda()
+    #model = NeuralNet()()
     # Load model
-    #model = torch.load('mytraining.pth')
+    model = torch.load('mytraining.pth')
 
     # Some stuff
-    optimizer = optim.SGD(model.parameters(), lr=0.008, momentum=0.1)
+    optimizer = optim.SGD(model.parameters(), lr=0.006, momentum=MOMENTUM)
     criterion = nn.CrossEntropyLoss()
 
     model.train()
 
     # Convert numpy arrays to torch variables
-    inputs = torch.autograd.Variable(torch.from_numpy(x_train).type(torch.cuda.FloatTensor), requires_grad=True)
-    targets = torch.autograd.Variable(torch.from_numpy(y_train).type(torch.cuda.LongTensor), requires_grad=False)
+    inputs = torch.autograd.Variable(torch.from_numpy(x_train).type(torch.FloatTensor), requires_grad=True)
+    targets = torch.autograd.Variable(torch.from_numpy(y_train).type(torch.LongTensor), requires_grad=False)
 
     for epoch in range(EPOCHS):
         if epoch == NEXT_TO_CHANGE:
             MOMENTUM /= DIVIDER
-            NEXT_TO_CHANGE += NEXT_TO_CHANGE + EPOCHS_TO_CHANGE
+            NEXT_TO_CHANGE += EPOCHS_TO_CHANGE
+            torch.save(model, 'mytraining.pth')
 
         # Forward pass
         outputs = model(inputs)
@@ -74,8 +75,8 @@ def train():
         loss.backward()
         optimizer.step()
 
-        if (epoch + 1) % 50 == 0:
-            print('Epoch [{}/{}], Loss: {:.24f}'.format(epoch + 1, EPOCHS, loss.data[0]))
+        if (epoch) % 10 == 0:
+            print('Epoch [{}/{}], Loss: {:.24f}'.format(epoch, EPOCHS, loss.data[0]))
 
     torch.save(model, 'mytraining.pth')
     return model

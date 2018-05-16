@@ -21,7 +21,7 @@ def predict(x):
     model = torch.load('mytraining.pth')
     model.eval()
 
-    x = torch.autograd.Variable(torch.from_numpy(x).type(torch.cuda.FloatTensor), requires_grad=True)
+    x = torch.autograd.Variable(torch.from_numpy(x).type(torch.FloatTensor), requires_grad=True)
     good = 0
     predicted = np.array([], dtype=np.int)
     for i in range(0, 2500):
@@ -48,6 +48,6 @@ content.train()
 
 (x_train, y_train) = pkl.load(open('train.pkl', mode='rb'))
 (x_train, y_train) = (x_train[27500:], y_train[27500:])
-targets = torch.autograd.Variable(torch.from_numpy(y_train).type(torch.cuda.LongTensor), requires_grad=False)
+targets = torch.autograd.Variable(torch.from_numpy(y_train).type(torch.LongTensor), requires_grad=False)
 predicted_y = predict(x_train)
 #print(predicted_y)
