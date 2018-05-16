@@ -42,7 +42,7 @@ def train():
     NEXT_TO_CHANGE = EPOCHS_TO_CHANGE
 
     # Load data
-    (x_train, y_train) = pkl.load(open('train.pkl', mode='rb'))
+    (x_train, y_train) = pkl.load(open('zad4/train.pkl', mode='rb'))
     (x_train, y_train) = (x_train[:COUNT], y_train[:COUNT])
 
     # Create model
