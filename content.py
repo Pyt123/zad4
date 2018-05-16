@@ -16,26 +16,20 @@ class NeuralNet(nn.Module):
         super().__init__()
         self.fc1 = nn.Linear(INPUT_RESOLUTION * INPUT_RESOLUTION, HIDDEN_SIZES[0])
         self.fc2 = nn.Linear(HIDDEN_SIZES[0], HIDDEN_SIZES[1])
-        #self.fc3 = nn.Linear(HIDDEN_SIZES[1], HIDDEN_SIZES[2])
         self.fc4 = nn.Linear(HIDDEN_SIZES[1], NUM_OF_CLASSES)
 
     def forward(self, x):
         x = x.view(-1, INPUT_RESOLUTION * INPUT_RESOLUTION)
         x = F.relu(self.fc1(x))
         x = F.relu(self.fc2(x))
-        #x = F.relu(self.fc3(x))
         return self.fc4(x)
-        #x = (self.fc1(x))
-        #x = (self.fc2(x))
-        #x = (self.fc3(x))
-        #return (self.fc4(x))
 
 
 
 def train():
     COUNT = 27500
     EPOCHS = 3000
-    START_MOMENTUM = 0.01
+    START_MOMENTUM = 0.002
     MOMENTUM = START_MOMENTUM
     DIVIDER = 1.5
     EPOCHS_TO_CHANGE = 500
