@@ -46,7 +46,7 @@ def predict(x):
 
 content.train()
 
-(x_train, y_train) = pkl.load(open('zad4/train.pkl', mode='rb'))
+(x_train, y_train) = pkl.load(open('train.pkl', mode='rb'))
 (x_train, y_train) = (x_train[27500:], y_train[27500:])
 targets = torch.autograd.Variable(torch.from_numpy(y_train).type(torch.cuda.LongTensor), requires_grad=False)
 predicted_y = predict(x_train)
