@@ -21,7 +21,7 @@ def predict(x):
     model = torch.load('mytraining.pth')
     model.eval()
 
-    x = torch.autograd.Variable(torch.from_numpy(x).type(torch.FloatTensor), requires_grad=True)
+    x = torch.autograd.Variable(torch.from_numpy(x).type(torch.cuda.FloatTensor), requires_grad=True)
     good = 0
     predicted = np.array([], dtype=np.int)
     for i in range(0, 2500):

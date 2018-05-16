@@ -35,7 +35,7 @@ class NeuralNet(nn.Module):
 def train():
     COUNT = 27500
     EPOCHS = 3000
-    START_MOMENTUM = 0.03
+    START_MOMENTUM = 0.01
     MOMENTUM = START_MOMENTUM
     DIVIDER = 1.5
     EPOCHS_TO_CHANGE = 500
@@ -46,9 +46,9 @@ def train():
     (x_train, y_train) = (x_train[:COUNT], y_train[:COUNT])
 
     # Create model
-    #model = NeuralNet()()
+    #model = NeuralNet().cuda()
     # Load model
-    model = torch.load('mytraining.pth', map_location='cpu')
+    model = torch.load('mytraining.pth')
 
     # Some stuff
     optimizer = optim.SGD(model.parameters(), lr=0.006, momentum=MOMENTUM)
@@ -57,8 +57,8 @@ def train():
     model.train()
 
     # Convert numpy arrays to torch variables
-    inputs = torch.autograd.Variable(torch.from_numpy(x_train).type(torch.FloatTensor), requires_grad=True)
-    targets = torch.autograd.Variable(torch.from_numpy(y_train).type(torch.LongTensor), requires_grad=False)
+    inputs = torch.autograd.Variable(torch.from_numpy(x_train).type(torch.cuda.FloatTensor), requires_grad=True)
+    targets = torch.autograd.Variable(torch.from_numpy(y_train).type(torch.cuda.LongTensor), requires_grad=False)
 
     for epoch in range(EPOCHS):
         if epoch == NEXT_TO_CHANGE:
