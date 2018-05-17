@@ -5,7 +5,7 @@ import torch.optim as optim
 import torch.nn.functional as F
 
 BATCH_SIZE = 64
-HIDDEN_SIZES = [256]
+HIDDEN_SIZES = [768]
 
 NUM_OF_CLASSES = 36
 INPUT_RESOLUTION = 56
@@ -15,24 +15,21 @@ class NeuralNet(nn.Module):
     def __init__(self):
         super().__init__()
         self.fc1 = nn.Linear(INPUT_RESOLUTION * INPUT_RESOLUTION, HIDDEN_SIZES[0])
-        #self.fc2 = nn.Linear(HIDDEN_SIZES[0], HIDDEN_SIZES[1])
-        self.fc4 = nn.Linear(HIDDEN_SIZES[0], NUM_OF_CLASSES)
+        self.fc2 = nn.Linear(HIDDEN_SIZES[0], NUM_OF_CLASSES)
 
     def forward(self, x):
         x = x.view(-1, INPUT_RESOLUTION * INPUT_RESOLUTION)
         x = F.relu(self.fc1(x))
-        #x = F.relu(self.fc2(x))
-        return self.fc4(x)
-
+        return self.fc2(x)
 
 
 def train():
     COUNT = 27500
-    EPOCHS = 200
-    START_MOMENTUM = 1
+    EPOCHS = 200000
+    START_MOMENTUM = 0.001
     MOMENTUM = START_MOMENTUM
-    DIVIDER = 1.5
-    EPOCHS_TO_CHANGE = 30
+    DIVIDER = 1.1
+    EPOCHS_TO_CHANGE = 1000
     NEXT_TO_CHANGE = EPOCHS_TO_CHANGE
 
     # Load data
@@ -45,7 +42,7 @@ def train():
     model = torch.load('mytraining.pth')
 
     # Some stuff
-    optimizer = optim.SGD(model.parameters(), lr=0.01, momentum=MOMENTUM)
+    optimizer = optim.SGD(model.parameters(), lr=0.02, momentum=MOMENTUM)
     criterion = nn.CrossEntropyLoss()
 
     model.train()
@@ -69,8 +66,8 @@ def train():
         loss.backward()
         optimizer.step()
 
-        if (epoch) % 10 == 0:
-            print('Epoch [{}/{}], Loss: {:.24f}'.format(epoch, EPOCHS, loss.data[0]))
+        if epoch % 10 == 0:
+            print('Epoch [{}/{}],\tLoss: {:.24f}'.format(epoch, EPOCHS, loss.data[0]))
 
     torch.save(model, 'mytraining.pth')
     return model

@@ -7,6 +7,7 @@
 # --------------------------------------------------------------------------
 
 import content
+import time
 import torch
 import pickle as pkl
 import numpy as np
@@ -21,7 +22,8 @@ def save_model_as_numpy(model):
 
 
 def load_model_from_file():
-    return (np.load('model/params1.npy'), np.load('model/params2.npy'), np.load('model/params3.npy'), np.load('model/params4.npy'))
+    return (np.load('model/params1.npy'), np.load('model/params2.npy'),
+            np.load('model/params3.npy'), np.load('model/params4.npy'))
 
 
 def save_model_as_txt(par1, par2, par3, par4):
@@ -42,28 +44,34 @@ def predict(x):
     :param x: macierz o wymiarach NxD
     :return: wektor o wymiarach Nx1
     """
-    (w1, p1, w2, p2) = load_model_from_file()
-    i = 0
-    wyniki_kurwa = []
-    for x_n in x:
-        print('1 ' + str(x_n.shape) + '\trazy: ' + str(w1.shape))
-        layer1 = relu(np.dot(x_n, np.transpose(w1)))
 
-        #print('2 ' + str(layer1.shape) + '\trazy: ' + str(p1.shape))
-        #layer2 = sigmoid(np.dot(layer1, p1))
+    # -------------------------------------------------------------
+    print('start')
+    start_time = time.time()
+    (w1, _, w2, _) = load_model_from_file()
+    w1 = np.transpose(w1)
+    w2 = np.transpose(w2)
+    w1 = w1.copy(order='C')
+    w2 = w2.copy(order='C')
+    output_array = []
+    length = len(x)
+    #output = np.empty((length,), order='C')
+    layer1 = np.empty((768,), order='C')
+    layer2 = np.empty((36,), order='C')
 
-        print('3 ' + str(layer1.shape) + '\trazy: ' + str(w2.shape))
-        layer3 = relu(np.dot(layer1, np.transpose(w2)))
+    for i in range(0, length):
+        np.matmul(x[i], w1, out=layer1)
+        layer1 = relu(layer1)
+        np.matmul(layer1, w2, out=layer2)
+        layer2 = relu(layer2)
+        arg = layer2.argmax()
+        #output.setfield(np.int(arg), np.int, i)
+        output_array.append(arg)
 
-        #print('4 ' + str(layer3.shape) + '\trazy: ' + str(p2.shape))
-        #do_app = (sigmoid(np.dot(layer3, p2)))
-        do_app = layer3
-        arg = do_app.argmax()
-        print('końcowa: ' + str(do_app.shape))
-        wyniki_kurwa.append(arg)
-        i += 1
-        print(str(i))
-    output = np.array(wyniki_kurwa)
+    output = np.array(output_array)
+    print('time needed: ' + str(time.time() - start_time) + ' s')
+    #return output
+    # -------------------------------------------------------------
     np.save('predicted_vals', output)
 
     good = 0
@@ -75,27 +83,13 @@ def predict(x):
     return output
 
 
-#content.train()
+content.train()
 
 (x_train, y_train) = pkl.load(open('train.pkl', mode='rb'))
 (x_train, y_train) = (x_train[27500:], y_train[27500:])
-#targets = torch.autograd.Variable(torch.from_numpy(y_train).type(torch.LongTensor), requires_grad=False)
-#print(predicted_y)
+
 model = torch.load('mytraining.pth', 'cpu')
 save_model_as_numpy(model)
-#save_model_as_txt(par1, par2, par3, par4, par5, par6)
 predicted_y = predict(x_train)
 
-#print('1:\t' + str(len(par1)) + ' x ' + str(len(par1.transpose())))
-#print('2:\t' + str(len(par2)) + ' x ' + str(len(par2.transpose())))
-#print('3:\t' + str(len(par3)) + ' x ' + str(len(par3.transpose())))
-#print('4:\t' + str(len(par4)) + ' x ' + str(len(par4.transpose())))
-#print('5:\t' + str(len(par5)) + ' x ' + str(len(par5.transpose())))
-#print('6:\t' + str(len(par6)) + ' x ' + str(len(par6.transpose())))
-#pred = np.load('predicted_vals.npy')
-np.savetxt('predicted_vals.txt', pred, fmt='%d')
-np.savetxt('y_train.txt', y_train, fmt='%d')
 exit(0)
-print('')
-
-
