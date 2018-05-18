@@ -3,6 +3,7 @@ from torch import nn
 import pickle as pkl
 import torch.optim as optim
 import torch.nn.functional as F
+import numpy as np
 
 BATCH_SIZE = 64
 HIDDEN_SIZES = [768]
@@ -25,11 +26,11 @@ class NeuralNet(nn.Module):
 
 def train():
     COUNT = 27500
-    EPOCHS = 200000
-    START_MOMENTUM = 0.001
+    EPOCHS = 5000
+    START_MOMENTUM = 0.1
     MOMENTUM = START_MOMENTUM
-    DIVIDER = 1.1
-    EPOCHS_TO_CHANGE = 1000
+    DIVIDER = 1.2
+    EPOCHS_TO_CHANGE = 100
     NEXT_TO_CHANGE = EPOCHS_TO_CHANGE
 
     # Load data
@@ -42,7 +43,8 @@ def train():
     model = torch.load('mytraining.pth')
 
     # Some stuff
-    optimizer = optim.SGD(model.parameters(), lr=0.02, momentum=MOMENTUM)
+    optimizer = optim.Adam(model.parameters(), lr=0.0001, eps=1e-3)
+    #optimizer = optim.SGD
     criterion = nn.CrossEntropyLoss()
 
     model.train()
@@ -71,3 +73,19 @@ def train():
 
     torch.save(model, 'mytraining.pth')
     return model
+
+
+
+'''def predict(x):
+    x_train, y_train = pkl.load(open('train.pkl', mode='rb'))
+    x_train, y_train = x_train[:6], y_train[:6]
+    return y_train[np.argmin(
+        2.5 * x.astype(np.uint16) @ ~x_train.astype(np.bool).transpose() + ~x.astype(np.bool) @ x_train.astype(
+            np.uint16).transpose(), axis=1)]
+
+
+x_train, y_train = pkl.load(open('train.pkl', mode='rb'))
+x_train = x_train[6:10]
+pred = predict(x_train)
+print(type(pred))
+print(pred.shape)'''

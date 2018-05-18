@@ -37,6 +37,25 @@ def relu(x):
     return x * (x > 0)
 
 
+def get_predicted(x):
+    (w1, _, w2, _) = load_model_from_file()
+    w1 = np.transpose(w1).copy(order='C')
+    w2 = np.transpose(w2).copy(order='C')
+    output_array = []
+    layer1 = np.empty((768,), order='C')
+    layer2 = np.empty((36,), order='C')
+    length = len(x)
+    for i in range(0, length):
+        np.matmul(x[i], w1, out=layer1)
+        layer1 = relu(layer1)
+        np.matmul(layer1, w2, out=layer2)
+        layer2 = relu(layer2)
+        output_array.append(layer2.argmax())
+
+    output_vector = np.array(output_array)
+    return output_vector.reshape((len(output_vector), 1))
+
+
 def predict(x):
     """
     Funkcja pobiera macierz przykladow zapisanych w macierzy X o wymiarach NxD i zwraca wektor y o wymiarach Nx1,
@@ -58,15 +77,15 @@ def predict(x):
     #output = np.empty((length,), order='C')
     layer1 = np.empty((768,), order='C')
     layer2 = np.empty((36,), order='C')
-
+    #layer1 = np.asarray(layer1)
+    #layer2 = np.asarray(layer2)
     for i in range(0, length):
         np.matmul(x[i], w1, out=layer1)
         layer1 = relu(layer1)
         np.matmul(layer1, w2, out=layer2)
         layer2 = relu(layer2)
-        arg = layer2.argmax()
         #output.setfield(np.int(arg), np.int, i)
-        output_array.append(arg)
+        output_array.append(layer2.argmax())
 
     output = np.array(output_array)
     print('time needed: ' + str(time.time() - start_time) + ' s')
@@ -75,11 +94,11 @@ def predict(x):
     np.save('predicted_vals', output)
 
     good = 0
-    for i in range(0, 2500):
+    for i in range(0, 2634):
         if output[i] == y_train[i]:
             good += 1
     print("good: " + str(good))
-    print("ratio: " + str(good/2500.0 * 100))
+    print("ratio: " + str(good/2634.0 * 100))
     return output
 
 
@@ -90,6 +109,17 @@ content.train()
 
 model = torch.load('mytraining.pth', 'cpu')
 save_model_as_numpy(model)
-predicted_y = predict(x_train)
+print('saved as numpy')
+#predicted_y = predict(x_train)
+
+
+pred = get_predicted(x_train)
+
+good = 0
+for i in range(0, 2634):
+    if pred[i] == y_train[i]:
+        good += 1
+print("good: " + str(good))
+print("ratio: " + str(good / 2634.0 * 100))
 
 exit(0)
